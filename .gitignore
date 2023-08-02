@@ -5,3 +5,5 @@ dist/*
 !dist/index.html
 .vscode
 demo/dist
+*.tar.gz
+*.zip
