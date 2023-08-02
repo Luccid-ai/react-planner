@@ -63,6 +63,7 @@ export default function keyboard() {
           let selected = state.getIn(['scene', 'layers', selectedLayer, 'selected']);
 
           if ( ( mode === MODE_IDLE || mode === MODE_3D_VIEW ) && (selected.holes.size || selected.areas.size || selected.items.size || selected.lines.size)) {
+            console.log(111111111)
             if (selected.holes.size) {
               let hole = state.getIn(['scene', 'layers', selectedLayer, 'holes', selected.holes.get(0)]);
               store.dispatch(copyProperties(hole.get('properties')));

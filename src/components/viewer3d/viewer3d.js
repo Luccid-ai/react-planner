@@ -164,9 +164,10 @@ const Scene3DViewer = (props) => {
     setWidth(props.width);
     setHeight(props.height);
 
-    cameraP.aspect = width / height;
-
-    cameraP.updateProjectionMatrix();
+    if(cameraP){
+      cameraP.aspect = width / height;
+      cameraP.updateProjectionMatrix();
+    }
 
     if (previousProps && (props.state.scene !== previousProps.state.scene)) {
       let changedValues = diff(previousProps.state.scene, props.state.scene);
