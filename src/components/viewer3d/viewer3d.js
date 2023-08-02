@@ -28,28 +28,28 @@ const Scene3DViewer = (props) => {
 
   let mouseDownEvent = null
   let mouseUpEvent = null
-  let camera = null;
-  let scene3D = null;
-  let planData = null;
-  let orbitControls = null
+  let cameraP = null;
+  let scene3DP = null;
+  let planDataP = null;
+  let orbitControllerP = null
 
   useEffect(()=>{
     let { state } = props;
 
-    scene3D = new Three.Scene();
+    const scene3D = new Three.Scene();
 
     //RENDERER
     renderer.setClearColor(new Three.Color(SharedStyle.COLORS.white));
     renderer.setSize(width, height);
 
     // LOAD DATA
-    planData = parseData(state.scene, actions, catalog);
+    const planData = parseData(state.scene, actions, catalog);
 
     scene3D.add(planData.plan);
     scene3D.add(planData.grid);
 
     let aspectRatio = width / height;
-    camera = new Three.PerspectiveCamera(45, aspectRatio, 1, 300000);
+    const camera = new Three.PerspectiveCamera(45, aspectRatio, 1, 300000);
 
     scene3D.add(camera);
 
@@ -111,7 +111,7 @@ const Scene3DViewer = (props) => {
     canvasWrapper.current.appendChild(renderer.domElement);
 
     // create orbit controls
-    let orbitController = new OrbitControls(camera, renderer.domElement);
+    const orbitController = new OrbitControls(camera, renderer.domElement);
     let spotLightTarget = new Three.Object3D();
     spotLightTarget.name = 'spotLightTarget';
     spotLightTarget.position.set(orbitController.target.x, orbitController.target.y, orbitController.target.z);
@@ -135,26 +135,26 @@ const Scene3DViewer = (props) => {
 
     render();
 
-    orbitControls = orbitController;
-    camera = camera;
-    scene3D = scene3D;
-    planData = planData;
+    cameraP = camera;
+    scene3DP = scene3D;
+    planDataP = planData;
+    orbitControllerP = orbitController;
 
     return ()=>{
       cancelAnimationFrame(renderingID);
-      orbitControls.dispose();
+      orbitControllerP.dispose();
 
-      renderer.domElement.removeEventListener('mousedown', this.mouseDownEvent);
-      renderer.domElement.removeEventListener('mouseup', this.mouseUpEvent);
+      renderer.domElement.removeEventListener('mousedown', mouseDownEvent);
+      renderer.domElement.removeEventListener('mouseup', mouseUpEvent);
 
-      disposeScene(this.scene3D);
-      scene3D.remove(this.planData.plan);
-      scene3D.remove(this.planData.grid);
+      disposeScene(scene3DP);
+      scene3DP.remove(planDataP.plan);
+      scene3DP.remove(planDataP.grid);
 
-      scene3D = null;
-      planData = null;
-      camera = null;
-      orbitControls = null;
+      scene3DP = null;
+      planDataP = null;
+      cameraP = null;
+      orbitControllerP = null;
       renderer.renderLists.dispose();
     }
   }, [])
@@ -164,9 +164,9 @@ const Scene3DViewer = (props) => {
     setWidth(props.width);
     setHeight(props.height);
 
-    camera.aspect = width / height;
+    cameraP.aspect = width / height;
 
-    camera.updateProjectionMatrix();
+    cameraP.updateProjectionMatrix();
 
     if (previousProps && (props.state.scene !== previousProps.state.scene)) {
       let changedValues = diff(previousProps.state.scene, props.state.scene);
