@@ -35,14 +35,13 @@ const elementStyle = {
   padding: '0.5em',
   textAlign: 'center',
   display: 'inline-block',
-  border: '1px solid #CCC',
+  border: `1px solid ${SharedStyle.SECONDARY_COLOR.main || '#CCC'}`,
   borderRadius: '0.2em'
 };
 
 const elementSelectedStyle = {
   ...elementStyle,
-  color: SharedStyle.SECONDARY_COLOR.main,
-  borderColor: SharedStyle.SECONDARY_COLOR.main,
+  color: SharedStyle.SECONDARY_COLOR.main
 };
 
 const categoryDividerStyle = {
@@ -80,7 +79,7 @@ const PanelLayerElement = ({ mode, layers, selectedLayer }) => {
       setMatchedElements(newElements);
     }
   }, [layers, selectedLayer]);
-  
+
   const matchArray = (text) => {
     if (text === '') {
       setMatchString('');
