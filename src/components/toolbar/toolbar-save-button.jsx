@@ -5,7 +5,7 @@ import ReactPlannerContext from '../../utils/react-planner-context';
 import ToolbarButton from './toolbar-button';
 import {browserDownload}  from '../../utils/browser';
 import { Project } from '../../class/export';
-import { OBJExporter } from './OBJExporter';
+import { OBJExporter } from './obj-exporter';
 import Dropdown from 'rc-dropdown';
 import Menu, { Item as MenuItem } from 'rc-menu';
 import './rc-dropdown.css';
@@ -13,8 +13,8 @@ import { parseData } from '../viewer3d/scene-creator';
 import * as Three from 'three';
 
 export default function ToolbarSaveButton({state}) {
-  const context = useContext(ReactPlannerContext);
-  const { translator, catalog} = context;
+  const actions = useContext(ReactPlannerContext);
+  const { translator, catalog} = actions;
 
   const saveProjectToJSONFile = () => {
     state = Project.unselectAll( state ).updatedState;
@@ -24,13 +24,7 @@ export default function ToolbarSaveButton({state}) {
   const saveProjectToObjFile = () => {
     const objExporter = new OBJExporter();
     state = Project.unselectAll( state ).updatedState;
-    const actions = {
-      areaActions: context.areaActions,
-      holesActions: context.holesActions,
-      itemsActions: context.itemsActions,
-      linesActions: context.linesActions,
-      projectActions: context.projectActions
-    };
+
     const scene = state.get('scene')
     let planData = parseData(scene, actions, catalog);
     setTimeout(()=>{
