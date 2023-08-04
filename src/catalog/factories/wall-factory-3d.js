@@ -5,12 +5,11 @@ import {
   Vector2,
   BoxGeometry,
   MeshBasicMaterial,
+  MeshStandardMaterial,
   Group,
-  Texture,
-  ImageUtils,
 } from 'three';
 
-import ThreeBSP from '../../utils/threeCSG.es6';
+import OctreeCSG from '../../utils/OctreeCSG/OctreeCSG';
 import { verticesDistance } from '../../utils/geometry';
 import * as SharedStyle from '../../styles/shared-style';
 
@@ -27,7 +26,12 @@ const applyTexture = (material, texture, length, height) => {
   let loader = new TextureLoader();
 
   if (texture) {
-    material.map = loader.load(texture.uri);
+    // TODO(pg): workaround so that we can load the file in a next.js app
+    if (texture.uri && texture.uri.default) {
+      material.map = loader.load(texture.uri.default.src);
+    } else {
+      material.map = loader.load(texture.uri);
+    }
     material.needsUpdate = true;
     material.map.wrapS = RepeatWrapping;
     material.map.wrapT = RepeatWrapping;
@@ -36,21 +40,25 @@ const applyTexture = (material, texture, length, height) => {
       height * texture.heightRepeatScale
     );
   }
-  // Todo
-  // if (texture.normal) {
-  //   material.normalMap = loader.load(texture.normal.uri);
-  //   material.normalMap.needsUpdate = true;
-  //   material.normalScale = new Vector2(
-  //     texture.normal.normalScaleX,
-  //     texture.normal.normalScaleY
-  //   );
-  //   material.normalMap.wrapS = RepeatWrapping;
-  //   material.normalMap.wrapT = RepeatWrapping;
-  //   material.normalMap.repeat.set(
-  //     length * texture.normal.lengthRepeatScale,
-  //     height * texture.normal.heightRepeatScale
-  //   );
-  // }
+
+  if (texture.normal) {
+    // TODO(pg): workaround so that we can load the file in a next.js app
+    if (texture.normal.uri && texture.normal.uri.default) {
+      material.normalMap = loader.load(texture.normal.uri.default.src);
+    } else {
+      material.normalMap = loader.load(texture.normal.uri);
+    }
+    material.normalScale = new Vector2(
+      texture.normal.normalScaleX,
+      texture.normal.normalScaleY
+    );
+    material.normalMap.wrapS = RepeatWrapping;
+    material.normalMap.wrapT = RepeatWrapping;
+    material.normalMap.repeat.set(
+      length * texture.normal.lengthRepeatScale,
+      height * texture.normal.heightRepeatScale
+    );
+  }
 };
 
 export function buildWall(element, layer, scene, textures) {
@@ -114,17 +122,13 @@ export function buildWall(element, layer, scene, textures) {
 
     holeMesh.rotation.y = alpha;
 
-    let wallBSP = new ThreeBSP(soul);
-    let holeBSP = new ThreeBSP(holeMesh);
-
-    let wallWithHoleBSP = wallBSP.subtract(holeBSP);
-    soul = wallWithHoleBSP.toMesh(soulMaterial);
+    soul = OctreeCSG.meshSubtract(soul, holeMesh);
   });
 
   soul.name = 'soul';
 
-  let frontMaterial = new MeshBasicMaterial();
-  let backMaterial = new MeshBasicMaterial();
+  let frontMaterial = new MeshStandardMaterial();
+  let backMaterial = new MeshStandardMaterial();
 
   applyTexture(
     frontMaterial,
