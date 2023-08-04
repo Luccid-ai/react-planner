@@ -1,75 +1,75 @@
-import React from "react";
-import * as Three from "three";
-import { loadObjWithMaterial } from "../../utils/load-obj";
-import { ParametricGeometry } from "../../../../../jsm/geometries/ParametricGeometry";
+import React from 'react';
+import * as Three from 'three';
+import { loadObjWithMaterial } from '../../utils/load-obj';
+import { ParametricGeometry } from '../../../../../jsm/geometries/ParametricGeometry';
 
 let cached3DWindow = null;
 
-const STYLE_HOLE_BASE = { stroke: "#000", strokeWidth: "3px", fill: "#000" };
+const STYLE_HOLE_BASE = { stroke: '#000', strokeWidth: '3px', fill: '#000' };
 const STYLE_HOLE_SELECTED = {
-  stroke: "#0096fd",
-  strokeWidth: "3px",
-  fill: "#0096fd",
-  cursor: "move",
+  stroke: '#0096fd',
+  strokeWidth: '3px',
+  fill: '#0096fd',
+  cursor: 'move',
 };
 const EPSILON = 3;
 
 export default {
-  name: "window-curtain",
-  prototype: "holes",
+  name: 'window-curtain',
+  prototype: 'holes',
 
   info: {
-    tag: ["Finestre"],
-    title: "Curtain window",
-    description: "Curtain window",
-    image: require("./window-curtain.jpg"),
+    tag: ['Finestre'],
+    title: 'Curtain window',
+    description: 'Curtain window',
+    image: require('./window-curtain.jpg'),
   },
 
   properties: {
     width: {
-      label: "width",
-      type: "length-measure",
+      label: 'width',
+      type: 'length-measure',
       defaultValue: {
         length: 90,
       },
     },
     height: {
-      label: "height",
-      type: "length-measure",
+      label: 'height',
+      type: 'length-measure',
       defaultValue: {
         length: 100,
       },
     },
     altitude: {
-      label: "altitudine",
-      type: "length-measure",
+      label: 'altitudine',
+      type: 'length-measure',
       defaultValue: {
         length: 90,
       },
     },
     thickness: {
-      label: "spessore",
-      type: "length-measure",
+      label: 'spessore',
+      type: 'length-measure',
       defaultValue: {
         length: 10,
       },
     },
     flip: {
-      label: "flip",
-      type: "checkbox",
-      defaultValue: "none",
+      label: 'flip',
+      type: 'checkbox',
+      defaultValue: 'none',
       values: {
-        none: "none",
-        yes: "yes",
+        none: 'none',
+        yes: 'yes',
       },
     },
   },
 
   render2D: function (element, layer, scene) {
-    let holeWidth = element.properties.get("width").get("length");
+    let holeWidth = element.properties.get('width').get('length');
     let holePath = `M${0} ${-EPSILON}  L${holeWidth} ${-EPSILON}  L${holeWidth} ${EPSILON}  L${0} ${EPSILON}  z`;
     let holeStyle = element.selected ? STYLE_HOLE_SELECTED : STYLE_HOLE_BASE;
-    let length = element.properties.get("width").get("length");
+    let length = element.properties.get('width').get('length');
     return (
       <g transform={`translate(${-length / 2}, 0)`}>
         <path key="1" d={holePath} style={holeStyle} />
@@ -86,10 +86,10 @@ export default {
   },
 
   render3D: function (element, layer, scene) {
-    let width = element.properties.get("width").get("length");
-    let height = element.properties.get("height").get("length");
-    let thickness = element.properties.get("thickness").get("length");
-    let flip = element.properties.get("flip");
+    let width = element.properties.get('width').get('length');
+    let height = element.properties.get('height').get('length');
+    let thickness = element.properties.get('thickness').get('length');
+    let flip = element.properties.get('flip');
 
     let onLoadItem = (object) => {
       let window = new Three.Object3D();
@@ -108,9 +108,9 @@ export default {
         object.add(box);
       }
 
-      let width = element.properties.get("width").get("length");
-      let height = element.properties.get("height").get("length");
-      let thickness = element.properties.get("thickness").get("length");
+      let width = element.properties.get('width').get('length');
+      let height = element.properties.get('height').get('length');
+      let thickness = element.properties.get('thickness').get('length');
 
       object.scale.set(
         width / initialWidth,
@@ -130,11 +130,11 @@ export default {
       return Promise.resolve(onLoadItem(cached3DWindow.clone()));
     }
 
-    let mtl = require("./window.mtl");
-    let obj = require("./window.obj");
-    let img = require("./texture.png");
+    let mtl = require('./window.mtl');
+    let obj = require('./window.obj');
+    let img = require('./texture.png');
 
-    return loadObjWithMaterial(mtl, obj).then((object) => {
+    return loadObjWithMaterial(mtl, obj, img).then((object) => {
       cached3DWindow = object;
       return onLoadItem(cached3DWindow.clone());
     });

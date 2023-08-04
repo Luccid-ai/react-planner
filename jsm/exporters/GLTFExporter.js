@@ -24,7 +24,7 @@ import {
 	CompressedTexture,
 	Vector3
 } from 'three';
-import { decompress } from './texture-utils.js';
+import { decompress } from './../utils/TextureUtils.js';
 
 
 /**
@@ -1604,12 +1604,6 @@ class GLTFWriter {
 		if ( cache.meshes.has( meshCacheKey ) ) return cache.meshes.get( meshCacheKey );
 
 		const geometry = mesh.geometry;
-
-     if ( geometry instanceof Geometry ) {
-
-				geometry = new BufferGeometry().setFromObject( mesh );
-
-			}
 
 		let mode;
 

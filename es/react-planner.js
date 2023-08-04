@@ -18,7 +18,6 @@ import actions from './actions/export';
 import { objectsMap } from './utils/objects-utils';
 import { ToolbarComponents, Content, SidebarComponents, FooterBarComponents } from './components/export';
 import { VERSION } from './version';
-import './styles/styles';
 import ReactPlannerContext from './utils/react-planner-context';
 var Toolbar = ToolbarComponents.Toolbar;
 var Sidebar = SidebarComponents.Sidebar;
@@ -51,18 +50,16 @@ function ReactPlannerContent(props) {
     projectActions.initCatalog(catalog);
   }, []);
   useEffect(function () {
-    if (props.state !== state) {
-      var _stateExtractor = props.stateExtractor,
-        _state = props.state,
-        projectActions = props.projectActions,
-        catalog = props.catalog;
-      var plannerState = _stateExtractor(_state);
-      var catalogReady = plannerState.getIn(['catalog', 'ready']);
-      if (!catalogReady) {
-        projectActions.initCatalog(catalog);
-      }
+    var stateExtractor = props.stateExtractor,
+      state = props.state,
+      projectActions = props.projectActions,
+      catalog = props.catalog;
+    var plannerState = stateExtractor(state);
+    var catalogReady = plannerState.getIn(['catalog', 'ready']);
+    if (!catalogReady) {
+      projectActions.initCatalog(catalog);
     }
-  }, [props.state]);
+  }, [props]);
   return /*#__PURE__*/React.createElement("div", {
     style: _objectSpread({}, wrapperStyle)
   }, /*#__PURE__*/React.createElement(Toolbar, _extends({

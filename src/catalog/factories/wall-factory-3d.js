@@ -35,22 +35,22 @@ const applyTexture = (material, texture, length, height) => {
       length * texture.lengthRepeatScale,
       height * texture.heightRepeatScale
     );
-
-    // if (texture.normal) {
-    //   material.normalMap = loader.load(texture.normal.uri);
-    //   material.normalMap.needsUpdate = true;
-    //   material.normalScale = new Vector2(
-    //     texture.normal.normalScaleX,
-    //     texture.normal.normalScaleY
-    //   );
-    //   material.normalMap.wrapS = RepeatWrapping;
-    //   material.normalMap.wrapT = RepeatWrapping;
-    //   material.normalMap.repeat.set(
-    //     length * texture.normal.lengthRepeatScale,
-    //     height * texture.normal.heightRepeatScale
-    //   );
-    // }
   }
+  // Todo
+  // if (texture.normal) {
+  //   material.normalMap = loader.load(texture.normal.uri);
+  //   material.normalMap.needsUpdate = true;
+  //   material.normalScale = new Vector2(
+  //     texture.normal.normalScaleX,
+  //     texture.normal.normalScaleY
+  //   );
+  //   material.normalMap.wrapS = RepeatWrapping;
+  //   material.normalMap.wrapT = RepeatWrapping;
+  //   material.normalMap.repeat.set(
+  //     length * texture.normal.lengthRepeatScale,
+  //     height * texture.normal.heightRepeatScale
+  //   );
+  // }
 };
 
 export function buildWall(element, layer, scene, textures) {
