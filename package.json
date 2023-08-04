@@ -102,7 +102,7 @@
     "react-sizeme": "^3.0.2",
     "rimraf": "2.6.3",
     "style-loader": "3.3.3",
-    "three": "0.94.0",
+    "three": "^0.155.0",
     "webpack": "5.88.1",
     "webpack-cli": "5.1.4",
     "webpack-dev-server": "4.15.1"
@@ -110,6 +110,6 @@
   "peerDependencies": {
     "react": ">=16.0.0 <19.0.0",
     "react-dom": ">=16.0.0 <19.0.0",
-    "three": "0.94.x"
+    "three": ">=0.141.0"
   }
 }

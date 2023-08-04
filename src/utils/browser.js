@@ -1,5 +1,11 @@
 export function browserDownload(file, ext="json") {
-  const typeMap = { json: "text/plain", obj: "model/obj", mtl: "model/mtl	"}
+  const typeMap = {
+    json: "text/plain",
+    obj: "model/obj",
+    mtl: "model/mtl",
+    stl: "model/stl",
+    gltf: "model/gltf+json"
+  }
 
   if (!typeMap[ext]) return;
 

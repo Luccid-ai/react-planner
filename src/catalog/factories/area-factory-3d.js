@@ -4,14 +4,12 @@ import {
   ShapeGeometry,
   Box3,
   TextureLoader,
-  BackSide,
-  FrontSide,
-  Object3D,
   Mesh,
   MeshBasicMaterial,
   RepeatWrapping,
   Vector2,
-  DoubleSide
+  Vector3,
+  DoubleSide,
 } from 'three';
 import * as SharedStyle from '../../styles/shared-style';
 
@@ -30,15 +28,24 @@ const applyTexture = (material, texture, length, height) => {
     material.needsUpdate = true;
     material.map.wrapS = RepeatWrapping;
     material.map.wrapT = RepeatWrapping;
-    material.map.repeat.set(length * texture.lengthRepeatScale, height * texture.heightRepeatScale);
+    material.map.repeat.set(
+      length * texture.lengthRepeatScale,
+      height * texture.heightRepeatScale
+    );
 
-    if (texture.normal) {
-      material.normalMap = loader.load(texture.normal.uri);
-      material.normalScale = new Vector2(texture.normal.normalScaleX, texture.normal.normalScaleY);
-      material.normalMap.wrapS = RepeatWrapping;
-      material.normalMap.wrapT = RepeatWrapping;
-      material.normalMap.repeat.set(length * texture.normal.lengthRepeatScale, height * texture.normal.heightRepeatScale);
-    }
+    // if (texture.normal) {
+    //   material.normalMap = loader.load(texture.normal.uri);
+    //   material.normalScale = new Vector2(
+    //     texture.normal.normalScaleX,
+    //     texture.normal.normalScaleY
+    //   );
+    //   material.normalMap.wrapS = RepeatWrapping;
+    //   material.normalMap.wrapT = RepeatWrapping;
+    //   material.normalMap.repeat.set(
+    //     length * texture.normal.lengthRepeatScale,
+    //     height * texture.normal.heightRepeatScale
+    //   );
+    // }
   }
 };
 
@@ -49,32 +56,31 @@ const applyTexture = (material, texture, length, height) => {
 const assignUVs = (geometry) => {
   geometry.computeBoundingBox();
 
-  let {min, max} = geometry.boundingBox;
+  let { min, max } = geometry.boundingBox;
 
   let offset = new Vector2(0 - min.x, 0 - min.y);
   let range = new Vector2(max.x - min.x, max.y - min.y);
 
-  geometry.faceVertexUvs[0] = geometry.faces.map((face) => {
+  const attPos = geometry.attributes.position;
+  const attUv = geometry.attributes.uv;
+  const vec3 = new Vector3();
 
-    let v1 = geometry.vertices[face.a];
-    let v2 = geometry.vertices[face.b];
-    let v3 = geometry.vertices[face.c];
+  for (let i = 0; i < attPos.count; i++) {
+    vec3.fromBufferAttribute(attPos, i);
+    attUv.setXY(
+      i,
+      (vec3.x + offset.x) / range.x,
+      (vec3.y + offset.y) / range.y
+    );
+  }
 
-    return [
-      new Vector2((v1.x + offset.x) / range.x, (v1.y + offset.y) / range.y),
-      new Vector2((v2.x + offset.x) / range.x, (v2.y + offset.y) / range.y),
-      new Vector2((v3.x + offset.x) / range.x, (v3.y + offset.y) / range.y)
-    ];
-
-  });
-
-  geometry.uvsNeedUpdate = true;
+  attUv.needsUpdate = true;
 };
 
 export function createArea(element, layer, scene, textures) {
   let vertices = [];
 
-  element.vertices.forEach(vertexID => {
+  element.vertices.forEach((vertexID) => {
     vertices.push(layer.vertices.get(vertexID));
   });
 
@@ -93,13 +99,13 @@ export function createArea(element, layer, scene, textures) {
     shape.lineTo(vertices[i].x, vertices[i].y);
   }
 
-  let areaMaterial = new MeshPhongMaterial({side: DoubleSide, color});
+  let areaMaterial = new MeshPhongMaterial({ side: DoubleSide, color });
 
   /* Create holes for the area */
-  element.holes.forEach(holeID => {
+  element.holes.forEach((holeID) => {
     let holeCoords = [];
-    layer.getIn(['areas', holeID, 'vertices']).forEach(vertexID => {
-      let {x, y} = layer.getIn(['vertices', vertexID]);
+    layer.getIn(['areas', holeID, 'vertices']).forEach((vertexID) => {
+      let { x, y } = layer.getIn(['vertices', vertexID]);
       holeCoords.push([x, y]);
     });
     holeCoords = holeCoords.reverse();
@@ -110,7 +116,9 @@ export function createArea(element, layer, scene, textures) {
   let shapeGeometry = new ShapeGeometry(shape);
   assignUVs(shapeGeometry);
 
-  let boundingBox = new Box3().setFromObject(new Mesh(shapeGeometry, new MeshBasicMaterial()));
+  let boundingBox = new Box3().setFromObject(
+    new Mesh(shapeGeometry, new MeshBasicMaterial())
+  );
 
   let width = boundingBox.max.x - boundingBox.min.x;
   let height = boundingBox.max.y - boundingBox.min.y;
@@ -127,20 +135,34 @@ export function createArea(element, layer, scene, textures) {
   return Promise.resolve(area);
 }
 
-export function updatedArea( element, layer, scene, textures, mesh, oldElement, differences, selfDestroy, selfBuild ) {
-  let noPerf = () => { selfDestroy(); return selfBuild(); };
+export function updatedArea(
+  element,
+  layer,
+  scene,
+  textures,
+  mesh,
+  oldElement,
+  differences,
+  selfDestroy,
+  selfBuild
+) {
+  let noPerf = () => {
+    selfDestroy();
+    return selfBuild();
+  };
   let floor = mesh.getObjectByName('floor');
 
-  if( differences[0] == 'selected' ) {
-    let color = element.selected ? SharedStyle.AREA_MESH_COLOR.selected : ( element.properties.get('patternColor') || SharedStyle.AREA_MESH_COLOR.unselected );
-    floor.material.color.set( color );
-  }
-  else if( differences[0] == 'properties' ){
-    if( differences[1] === 'texture' ) {
+  if (differences[0] == 'selected') {
+    let color = element.selected
+      ? SharedStyle.AREA_MESH_COLOR.selected
+      : element.properties.get('patternColor') ||
+        SharedStyle.AREA_MESH_COLOR.unselected;
+    floor.material.color.set(color);
+  } else if (differences[0] == 'properties') {
+    if (differences[1] === 'texture') {
       return noPerf();
     }
-  }
-  else return noPerf();
+  } else return noPerf();
 
   return Promise.resolve(mesh);
 }

@@ -11,7 +11,7 @@ import {
   ToolbarComponents,
   Content,
   SidebarComponents,
-  FooterBarComponents
+  FooterBarComponents,
 } from './components/export';
 import { VERSION } from './version';
 import './styles/styles';
@@ -26,7 +26,7 @@ const footerBarH = 20;
 const wrapperStyle = {
   display: 'flex',
   flexFlow: 'row nowrap',
-  height: '100%'
+  height: '100%',
 };
 
 function ReactPlannerContent(props) {
@@ -40,7 +40,7 @@ function ReactPlannerContent(props) {
   useEffect(() => {
     let { store } = contextValue;
     let { projectActions, catalog, stateExtractor, plugins } = props;
-    plugins.forEach(plugin => plugin(store, stateExtractor));
+    plugins.forEach((plugin) => plugin(store, stateExtractor));
     projectActions.initCatalog(catalog);
   }, []);
 
@@ -56,9 +56,20 @@ function ReactPlannerContent(props) {
   return (
     <div style={{ ...wrapperStyle }}>
       <Toolbar state={extractedState} {...otherProps} />
-      <Content width={width} height={contentH} state={extractedState} {...otherProps} onWheel={event => event.preventDefault()} />
+      <Content
+        width={width}
+        height={contentH}
+        state={extractedState}
+        {...otherProps}
+        onWheel={(event) => event.preventDefault()}
+      />
       <Sidebar state={extractedState} {...otherProps} />
-      <FooterBar width={width} height={footerBarH} state={extractedState} {...otherProps} />
+      <FooterBar
+        width={width}
+        height={footerBarH}
+        state={extractedState}
+        {...otherProps}
+      />
     </div>
   );
 }
@@ -77,17 +88,46 @@ ReactPlannerContent.propTypes = {
   sidebarComponents: PropTypes.array,
   footerbarComponents: PropTypes.array,
   customContents: PropTypes.object,
-  softwareSignature: PropTypes.string
+  softwareSignature: PropTypes.string,
 };
 
 // Step 3: Wrap the component tree with the Provider component
 function ReactPlanner(props) {
-  const { state, translator, catalog, projectActions, sceneActions, linesActions, holesActions, verticesActions, itemsActions, areaActions, viewer2DActions, viewer3DActions, groupsActions } = props;
+  const {
+    state,
+    translator,
+    catalog,
+    projectActions,
+    sceneActions,
+    linesActions,
+    holesActions,
+    verticesActions,
+    itemsActions,
+    areaActions,
+    viewer2DActions,
+    viewer3DActions,
+    groupsActions,
+  } = props;
 
   return (
-    <ReactPlannerContext.Provider value={{
-      state, translator, catalog, projectActions, sceneActions, linesActions, holesActions, verticesActions, itemsActions, areaActions, viewer2DActions, viewer3DActions, groupsActions, store: props.store
-    }}>
+    <ReactPlannerContext.Provider
+      value={{
+        state,
+        translator,
+        catalog,
+        projectActions,
+        sceneActions,
+        linesActions,
+        holesActions,
+        verticesActions,
+        itemsActions,
+        areaActions,
+        viewer2DActions,
+        viewer3DActions,
+        groupsActions,
+        store: props.store,
+      }}
+    >
       <ReactPlannerContent {...props} />
     </ReactPlannerContext.Provider>
   );
@@ -109,12 +149,14 @@ ReactPlanner.defaultProps = {
 //redux connect
 function mapStateToProps(reduxState) {
   return {
-    state: reduxState
+    state: reduxState,
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return objectsMap(actions, actionNamespace => bindActionCreators(actions[actionNamespace], dispatch));
+  return objectsMap(actions, (actionNamespace) =>
+    bindActionCreators(actions[actionNamespace], dispatch)
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ReactPlanner);

@@ -2,7 +2,15 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import ReactPlannerContext from '../../utils/react-planner-context';
-import { ReactSVGPanZoom, TOOL_NONE, TOOL_PAN, TOOL_ZOOM_IN, TOOL_ZOOM_OUT, TOOL_AUTO, INITIAL_VALUE } from 'react-svg-pan-zoom';
+import {
+  ReactSVGPanZoom,
+  TOOL_NONE,
+  TOOL_PAN,
+  TOOL_ZOOM_IN,
+  TOOL_ZOOM_OUT,
+  TOOL_AUTO,
+  INITIAL_VALUE,
+} from 'react-svg-pan-zoom';
 import * as constants from '../../utils/constants';
 import State from './state';
 import * as SharedStyle from '../../styles/shared-style';
@@ -75,36 +83,46 @@ function mode2DetectAutopan(mode) {
 }
 
 function extractElementData(node) {
-  while (!node.attributes.getNamedItem('data-element-root') && node.tagName !== 'svg') {
+  while (
+    !node.attributes.getNamedItem('data-element-root') &&
+    node.tagName !== 'svg'
+  ) {
     node = node.parentNode;
   }
   if (node.tagName === 'svg') return null;
 
   return {
-    part: node.attributes.getNamedItem('data-part') ? node.attributes.getNamedItem('data-part').value : undefined,
+    part: node.attributes.getNamedItem('data-part')
+      ? node.attributes.getNamedItem('data-part').value
+      : undefined,
     layer: node.attributes.getNamedItem('data-layer').value,
     prototype: node.attributes.getNamedItem('data-prototype').value,
     selected: node.attributes.getNamedItem('data-selected').value === 'true',
-    id: node.attributes.getNamedItem('data-id').value
-  }
+    id: node.attributes.getNamedItem('data-id').value,
+  };
 }
 
-export default function Viewer2D(
-  { state, width, height },
-) {
-
-  let { viewer2DActions, linesActions, holesActions, verticesActions, itemsActions, areaActions, projectActions, catalog } = useContext(ReactPlannerContext);
+export default function Viewer2D({ state, width, height }) {
+  let {
+    viewer2DActions,
+    linesActions,
+    holesActions,
+    verticesActions,
+    itemsActions,
+    areaActions,
+    projectActions,
+    catalog,
+  } = useContext(ReactPlannerContext);
 
   let { viewer2D, mode, scene } = state;
 
   let layerID = scene.selectedLayer;
 
   let mapCursorPosition = ({ x, y }) => {
-    return { x, y: -y + scene.height }
+    return { x, y: -y + scene.height };
   };
 
-  let onMouseMove = viewerEvent => {
-
+  let onMouseMove = (viewerEvent) => {
     //workaround that allow imageful component to work
     let evt = new Event('mousemove-planner-event');
     evt.viewerEvent = viewerEvent;
@@ -151,7 +169,7 @@ export default function Viewer2D(
     viewerEvent.originalEvent.stopPropagation();
   };
 
-  let onMouseDown = viewerEvent => {
+  let onMouseDown = (viewerEvent) => {
     let event = viewerEvent.originalEvent;
 
     //workaround that allow imageful component to work
@@ -167,31 +185,59 @@ export default function Viewer2D(
 
       switch (elementData.prototype) {
         case 'lines':
-          linesActions.beginDraggingLine(elementData.layer, elementData.id, x, y, state.snapMask);
+          linesActions.beginDraggingLine(
+            elementData.layer,
+            elementData.id,
+            x,
+            y,
+            state.snapMask
+          );
           break;
 
         case 'vertices':
-          verticesActions.beginDraggingVertex(elementData.layer, elementData.id, x, y, state.snapMask);
+          verticesActions.beginDraggingVertex(
+            elementData.layer,
+            elementData.id,
+            x,
+            y,
+            state.snapMask
+          );
           break;
 
         case 'items':
           if (elementData.part === 'rotation-anchor')
-            itemsActions.beginRotatingItem(elementData.layer, elementData.id, x, y);
+            itemsActions.beginRotatingItem(
+              elementData.layer,
+              elementData.id,
+              x,
+              y
+            );
           else
-            itemsActions.beginDraggingItem(elementData.layer, elementData.id, x, y);
+            itemsActions.beginDraggingItem(
+              elementData.layer,
+              elementData.id,
+              x,
+              y
+            );
           break;
 
         case 'holes':
-          holesActions.beginDraggingHole(elementData.layer, elementData.id, x, y);
+          holesActions.beginDraggingHole(
+            elementData.layer,
+            elementData.id,
+            x,
+            y
+          );
           break;
 
-        default: break;
+        default:
+          break;
       }
     }
     event.stopPropagation();
   };
 
-  let onMouseUp = viewerEvent => {
+  let onMouseUp = (viewerEvent) => {
     let event = viewerEvent.originalEvent;
 
     let evt = new Event('mouseup-planner-event');
@@ -201,7 +247,6 @@ export default function Viewer2D(
     let { x, y } = mapCursorPosition(viewerEvent);
 
     switch (mode) {
-
       case constants.MODE_IDLE:
         let elementData = extractElementData(event.target);
 
@@ -273,7 +318,7 @@ export default function Viewer2D(
 
   let onChangeValue = (value) => {
     projectActions.updateZoomScale(value.a);
-    return viewer2DActions.updateCameraView(value)
+    return viewer2DActions.updateCameraView(value);
   };
 
   let onChangeTool = (tool) => {
@@ -310,44 +355,68 @@ export default function Viewer2D(
   let rulerYElements = Math.ceil(sceneHeight / rulerUnitPixelSize) + 1;
 
   return (
-    <div style={{
-      margin: 0,
-      padding: 0,
-      display: 'grid',
-      gridRowGap: '0',
-      gridColumnGap: '0',
-      gridTemplateColumns: `${rulerSize}px ${width - rulerSize}px`,
-      gridTemplateRows: `${rulerSize}px ${height - rulerSize}px`,
-      position: 'relative'
-    }}>
-      <div style={{ gridColumn: 1, gridRow: 1, backgroundColor: rulerBgColor }}></div>
-      <div style={{ gridRow: 1, gridColumn: 2, position: 'relative', overflow: 'hidden' }} id="rulerX">
-        {sceneWidth ? <RulerX
-          unitPixelSize={rulerUnitPixelSize}
-          zoom={sceneZoom}
-          mouseX={state.mouse.get('x') || 0}
-          width={width - rulerSize}
-          zeroLeftPosition={e || 0}
-          backgroundColor={rulerBgColor}
-          fontColor={rulerFnColor}
-          markerColor={rulerMkColor}
-          positiveUnitsNumber={rulerXElements}
-          negativeUnitsNumber={0}
-        /> : null}
+    <div
+      style={{
+        margin: 0,
+        padding: 0,
+        display: 'grid',
+        gridRowGap: '0',
+        gridColumnGap: '0',
+        gridTemplateColumns: `${rulerSize}px ${width - rulerSize}px`,
+        gridTemplateRows: `${rulerSize}px ${height - rulerSize}px`,
+        position: 'relative',
+      }}
+    >
+      <div
+        style={{ gridColumn: 1, gridRow: 1, backgroundColor: rulerBgColor }}
+      ></div>
+      <div
+        style={{
+          gridRow: 1,
+          gridColumn: 2,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+        id="rulerX"
+      >
+        {sceneWidth ? (
+          <RulerX
+            unitPixelSize={rulerUnitPixelSize}
+            zoom={sceneZoom}
+            mouseX={state.mouse.get('x') || 0}
+            width={width - rulerSize}
+            zeroLeftPosition={e || 0}
+            backgroundColor={rulerBgColor}
+            fontColor={rulerFnColor}
+            markerColor={rulerMkColor}
+            positiveUnitsNumber={rulerXElements}
+            negativeUnitsNumber={0}
+          />
+        ) : null}
       </div>
-      <div style={{ gridColumn: 1, gridRow: 2, position: 'relative', overflow: 'hidden' }} id="rulerY">
-        {sceneHeight ? <RulerY
-          unitPixelSize={rulerUnitPixelSize}
-          zoom={sceneZoom}
-          mouseY={state.mouse.get('y') || 0}
-          height={height - rulerSize}
-          zeroTopPosition={((sceneHeight * sceneZoom) + f) || 0}
-          backgroundColor={rulerBgColor}
-          fontColor={rulerFnColor}
-          markerColor={rulerMkColor}
-          positiveUnitsNumber={rulerYElements}
-          negativeUnitsNumber={0}
-        /> : null}
+      <div
+        style={{
+          gridColumn: 1,
+          gridRow: 2,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+        id="rulerY"
+      >
+        {sceneHeight ? (
+          <RulerY
+            unitPixelSize={rulerUnitPixelSize}
+            zoom={sceneZoom}
+            mouseY={state.mouse.get('y') || 0}
+            height={height - rulerSize}
+            zeroTopPosition={sceneHeight * sceneZoom + f || 0}
+            backgroundColor={rulerBgColor}
+            fontColor={rulerFnColor}
+            markerColor={rulerMkColor}
+            positiveUnitsNumber={rulerYElements}
+            negativeUnitsNumber={0}
+          />
+        ) : null}
       </div>
       <ReactSVGPanZoom
         style={{ gridColumn: 2, gridRow: 2 }}
@@ -361,27 +430,33 @@ export default function Viewer2D(
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
-        toolbarProps={{position:"none"}}
-        miniatureProps={{position:"none"}}
+        toolbarProps={{ position: 'none' }}
+        miniatureProps={{ position: 'none' }}
       >
-
         <svg width={scene.width} height={scene.height}>
           <defs>
-            <pattern id="diagonalFill" patternUnits="userSpaceOnUse" width="4" height="4" fill="#FFF">
+            <pattern
+              id="diagonalFill"
+              patternUnits="userSpaceOnUse"
+              width="4"
+              height="4"
+              fill="#FFF"
+            >
               <rect x="0" y="0" width="4" height="4" fill="#FFF" />
-              <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" style={{ stroke: '#8E9BA2', strokeWidth: 1 }} />
+              <path
+                d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2"
+                style={{ stroke: '#8E9BA2', strokeWidth: 1 }}
+              />
             </pattern>
           </defs>
           <g style={Object.assign(mode2Cursor(mode), mode2PointerEvents(mode))}>
             <State state={state} catalog={catalog} />
           </g>
         </svg>
-
       </ReactSVGPanZoom>
     </div>
   );
 }
-
 
 Viewer2D.propTypes = {
   state: PropTypes.object.isRequired,
