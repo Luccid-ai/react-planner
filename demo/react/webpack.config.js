@@ -14,7 +14,7 @@ module.exports = (env, self) => {
   let config = {
     context: path.resolve(__dirname),
     entry: {
-      app: './src/renderer.jsx',
+      app: './renderer.jsx',
       vendor: VENDORS_LIBRARIES
     },
     output: {
@@ -33,7 +33,7 @@ module.exports = (env, self) => {
     resolve: {
       extensions: ['.js', '.jsx'],
       alias: {
-        'react-planner': path.join(__dirname, '../src'),
+        'react-planner': path.join(__dirname, '../../src'),
       },
       // TODO(pg): check the comment below
       // This section in Webpack 5 was added to manage the removal of automatic Node.js polyfills in Webpack 5. If your code depends on these or other Node.js core modules, you might need to install appropriate polyfills.
@@ -63,7 +63,7 @@ module.exports = (env, self) => {
         type: 'asset/resource',
         generator: {
           filename: '[path][name][ext]',
-          publicPath: ''
+          publicPath: './'
         }
       }, {
         test: /\.css$/,
@@ -76,7 +76,7 @@ module.exports = (env, self) => {
     plugins: [
       new HtmlWebpackPlugin({
         title: PAGE_TITLE,
-        template: './src/index.html.ejs',
+        template: './index.html.ejs',
         filename: 'index.html',
         inject: 'body',
       }),
