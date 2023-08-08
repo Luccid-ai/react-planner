@@ -12,9 +12,9 @@ module.exports = (env, self) => {
   if (isProduction) console.info('Webpack: Production mode'); else console.info('Webpack: Development mode');
 
   let config = {
-    context: path.resolve(__dirname),
+    context: path.resolve(__dirname+'/..'),
     entry: {
-      app: './renderer.jsx',
+      app: './react/renderer.jsx',
       vendor: VENDORS_LIBRARIES
     },
     output: {
@@ -63,7 +63,7 @@ module.exports = (env, self) => {
         type: 'asset/resource',
         generator: {
           filename: '[path][name][ext]',
-          publicPath: './'
+          publicPath: '/'
         }
       }, {
         test: /\.css$/,
@@ -76,7 +76,7 @@ module.exports = (env, self) => {
     plugins: [
       new HtmlWebpackPlugin({
         title: PAGE_TITLE,
-        template: './index.html.ejs',
+        template: './react/index.html.ejs',
         filename: 'index.html',
         inject: 'body',
       }),
