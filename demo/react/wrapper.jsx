@@ -5,9 +5,9 @@ import immutableDevtools from 'immutable-devtools';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 
-import MyCatalog from './catalog/mycatalog';
+import MyCatalog from '../src/catalog/mycatalog-react';
 
-import ToolbarScreenshotButton from './ui/toolbar-screenshot-button';
+import ToolbarScreenshotButton from '../src/ui/toolbar-screenshot-button';
 
 import "react-planner/styles/react-planner.css"
 
