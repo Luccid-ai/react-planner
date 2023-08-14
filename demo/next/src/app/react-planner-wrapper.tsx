@@ -7,16 +7,16 @@ import { Provider } from 'react-redux';
 import "../../../src/styles/react-planner.css";
 
 //download this demo catalog https://github.com/cvdlab/react-planner/tree/master/demo/src/catalog
-import catalog from '../../../demo/src/catalog/mycatalog';
+import catalog from '../../../src/catalog/mycatalog-next';
 
-import ToolbarScreenshotButton from '../../../demo/src/ui/toolbar-screenshot-button';
+import ToolbarScreenshotButton from '../../../src/ui/toolbar-screenshot-button';
 
 import {
   Models as PlannerModels,
   reducer as PlannerReducer,
   ReactPlanner,
   Plugins as PlannerPlugins,
-} from '../../../src/index';
+} from '../../../../src/';
 
 //define state
 declare global {

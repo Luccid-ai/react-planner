@@ -7,7 +7,7 @@
   "jsnext:main": "es/index.js",
   "scripts": {
     "start-react": "webpack-dev-server --config demo/react/webpack.config.js --port 9000 --mode development",
-    "start-next": "next dev",
+    "start-next": "next dev demo/next",
     "build-demo": "webpack --config demo/react/webpack.config.js --mode production",
     "build-commonjs": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
     "build-es": "cross-env BABEL_ENV=es babel src --copy-files --out-dir es",
@@ -97,6 +97,7 @@
     "file-loader": "6.2.0",
     "gh-pages": "2.0.1",
     "immutable-devtools": "0.1.5",
+    "next": "^13.3.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-sizeme": "^3.0.2",

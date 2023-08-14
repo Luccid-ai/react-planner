@@ -2,10 +2,18 @@ import {Catalog} from 'react-planner';
 
 let catalog = new Catalog();
 
-import * as Areas from './areas/**/planner-element.jsx';
-import * as Lines from './lines/**/planner-element.jsx';
-import * as Holes from './holes/**/planner-element.jsx';
-import * as Items from './items/**/planner-element.jsx';
+// Use Webpack's require.context to dynamically import all planner-element.jsx files
+const areasContext = require.context('./areas', true, /planner-element\.jsx$/);
+const Areas = areasContext.keys().map(areasContext);
+
+const linesContext = require.context('./lines', true, /planner-element\.jsx$/);
+const Lines = linesContext.keys().map(linesContext);
+
+const holesContext = require.context('./holes', true, /planner-element\.jsx$/);
+const Holes = holesContext.keys().map(holesContext);
+
+const itemsContext = require.context('./items', true, /planner-element\.jsx$/);
+const Items = itemsContext.keys().map(itemsContext);
 
 for( let x in Areas ) catalog.registerElement( Areas[x] );
 for( let x in Lines ) catalog.registerElement( Lines[x] );
