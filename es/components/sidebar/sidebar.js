@@ -140,7 +140,7 @@ export default function Sidebar(_ref) {
     style: {
       position: 'fixed',
       width: 290,
-      right: 14,
+      right: 15,
       top: '50%',
       transform: 'translateY(-50%)',
       zIndex: 9999
