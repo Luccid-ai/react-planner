@@ -33,7 +33,10 @@ import {
   ADD_CIRCULAR_GUIDE,
   REMOVE_HORIZONTAL_GUIDE,
   REMOVE_VERTICAL_GUIDE,
-  REMOVE_CIRCULAR_GUIDE
+  REMOVE_CIRCULAR_GUIDE,
+  SET_RIGHT_CLICK_COORDS,
+  COPY_ELEMENTS,
+  PASTE_ELEMENTS
 } from '../utils/constants';
 
 export function loadProject(sceneJSON) {
@@ -283,5 +286,24 @@ export function removeCircularGuide( guideID ) {
   return {
     type: REMOVE_CIRCULAR_GUIDE,
     guideID
+  };
+}
+
+export function setRightClickCoords(coords) {
+  return {
+    type: SET_RIGHT_CLICK_COORDS,
+    coords
+  };
+}
+
+export function copyElements() {
+  return {
+    type: COPY_ELEMENTS
+  };
+}
+
+export function pasteElements() {
+  return {
+    type: PASTE_ELEMENTS
   };
 }

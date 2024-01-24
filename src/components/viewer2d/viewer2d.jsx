@@ -166,7 +166,7 @@ export default function Viewer2D(
 
     let { x, y } = mapCursorPosition(viewerEvent);
 
-    if (mode === constants.MODE_IDLE) {
+    if (event.button === 0 && mode === constants.MODE_IDLE) { // left click
       let elementData = extractElementData(event.target);
       if (!elementData || !elementData.selected) return;
 
@@ -192,7 +192,10 @@ export default function Viewer2D(
 
         default: break;
       }
+    } else { // right click
+      projectActions.setRightClickCoords({x: x, y: y});
     }
+
     event.stopPropagation();
   };
 

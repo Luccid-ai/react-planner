@@ -60,6 +60,20 @@ export class ElementsSet extends Record({
   }
 }
 
+export class ClipboardElementsSet extends Record({
+  lines: new List(),
+  holes: new List(),
+  items: new List(),
+}, 'ClipboardElementsSet') {
+  constructor(json = {}) {
+    super({
+      lines: new List(json.lines || []),
+      holes: new List(json.holes || []),
+      items: new List(json.items || [])
+    });
+  }
+}
+
 const sharedAttributes =
 {
   id: '',
@@ -69,7 +83,8 @@ const sharedAttributes =
   misc: new Map(),
   selected: false,
   properties: new Map(),
-  visible: true
+  visible: true,
+  copied: false
 };
 
 export class Vertex extends Record({
@@ -297,6 +312,15 @@ export class HistoryStructure extends Record({
   }
 }
 
+export class CopyPasteInfos extends Record({
+  firstSelectedElement: null,
+  firstSelectedElementPrototype: null,
+  firstCopiedElement: null,
+  firstCopiedElementPrototype: null,
+  layerOfCopiedElements: null,
+  rightClickCoords: {}
+}, 'CopyPasteInfos'){}
+
 export class State extends Record({
   mode: MODE_IDLE,
   overlays: new List(),
@@ -315,6 +339,8 @@ export class State extends Record({
   errors: new List(),
   warnings: new List(),
   clipboardProperties: new Map(),
+  clipboardElements: new ClipboardElementsSet(),
+  copyPasteInfos: new CopyPasteInfos(),
   selectedElementsHistory: new List(),
   misc: new Map(),   //additional info
   alterate: false
@@ -329,7 +355,8 @@ export class State extends Record({
       drawingSupport: new Map(json.drawingSupport || {}),
       draggingSupport: new Map(json.draggingSupport || {}),
       rotatingSupport: new Map(json.rotatingSupport || {}),
-      misc: json.misc ? fromJS(json.misc) : new Map()
+      misc: json.misc ? fromJS(json.misc) : new Map(),
+      clipboardElements: new ClipboardElementsSet(json.clipboardElements)
     });
   }
 }

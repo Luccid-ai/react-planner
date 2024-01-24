@@ -4,6 +4,7 @@ import SidebarComponents from './sidebar/export';
 import FooterBarComponents from './footerbar/export';
 import Viewer2DComponents from './viewer2d/export';
 import StyleComponents from './style/export';
+import CustomContextMenuComponents from './custom-context-menu/export';
 
 export {
   ToolbarComponents,
@@ -11,7 +12,8 @@ export {
   SidebarComponents,
   FooterBarComponents,
   Viewer2DComponents,
-  StyleComponents
+  StyleComponents,
+  CustomContextMenuComponents
 };
 
 export default {
@@ -20,5 +22,6 @@ export default {
   SidebarComponents,
   FooterBarComponents,
   Viewer2DComponents,
-  StyleComponents
+  StyleComponents,
+  CustomContextMenuComponents
 };

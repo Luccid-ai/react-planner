@@ -34,7 +34,10 @@ import {
   ADD_CIRCULAR_GUIDE,
   REMOVE_HORIZONTAL_GUIDE,
   REMOVE_VERTICAL_GUIDE,
-  REMOVE_CIRCULAR_GUIDE
+  REMOVE_CIRCULAR_GUIDE,
+  SET_RIGHT_CLICK_COORDS,
+  COPY_ELEMENTS,
+  PASTE_ELEMENTS
 } from '../utils/constants';
 
 import { Project } from '../class/export';
@@ -152,6 +155,17 @@ export default function (state, action) {
 
     case REMOVE_CIRCULAR_GUIDE:
       return Project.removeCircularGuide(state, action.guideID).updatedState;
+
+    case SET_RIGHT_CLICK_COORDS:
+      return Project.setRightClickCoords(state, action.coords).updatedState;
+
+    case COPY_ELEMENTS:
+      state = state.merge({ sceneHistory: history.historyPush(state.sceneHistory, state.scene) });
+      return Project.copyElements(state).updatedState;
+
+    case PASTE_ELEMENTS:
+      state = state.merge({ sceneHistory: history.historyPush(state.sceneHistory, state.scene) });
+      return Project.pasteElements(state).updatedState;
 
     default:
       return state;
