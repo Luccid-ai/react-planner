@@ -53,21 +53,21 @@ const mapMenuItemsCb = (el, ind) => {
 
 const CustomContextMenu = (props) => {
   const { state, customContextMenuItems, clicked, setClicked, coords, numberOfElementsSelected, numberOfElementsInClipboard } = props;
-  const { projectActions } = useContext(ReactPlannerContext);
+  const { projectActions, translator } = useContext(ReactPlannerContext);
 
   const deleteLabel = numberOfElementsSelected > 1
-    ? "Delete elements"
-    : "Delete element"
+    ? translator.t("Delete elements")
+    : translator.t("Delete element")
   ;
 
   const copyLabel = numberOfElementsSelected > 1
-    ? "Copy elements"
-    : "Copy element"
+    ? translator.t("Copy elements")
+    : translator.t("Copy element")
   ;
 
   const pasteLabel = numberOfElementsInClipboard > 1
-    ? "Paste elements"
-    : "Paste element"
+    ? translator.t("Paste elements")
+    : translator.t("Paste element")
   ;
 
   const copyDisabled = !numberOfElementsSelected;
