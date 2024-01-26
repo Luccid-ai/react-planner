@@ -275,7 +275,8 @@ class Item{
       type : pastedItemType,
       width : pastedItemWidth,
       height : pastedItemHeight,
-      rotation : pastedItemRotation
+      rotation : pastedItemRotation,
+      properties: pastedItemProperties
     } = copiedItem;
 
     let copiedItemCoords = { x: copiedItem.x, y: copiedItem.y };
@@ -293,6 +294,8 @@ class Item{
     );
 
     state = stateI;
+
+    state = this.updateProperties( state, layerID, item.id, pastedItemProperties).updatedState;
 
     return { updatedState: state, item };
   }
