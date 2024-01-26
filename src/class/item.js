@@ -247,6 +247,58 @@ class Item{
     return this.setAttributes(state, layerID, itemID, itemAttributes);
   }
 
+  static copy(state, layerID, itemID) {
+    let item = state.getIn(['scene', 'layers', layerID, 'items', itemID]);
+
+    if (item) {
+      state = Layer.copyElement(state, layerID, 'items', itemID).updatedState;
+    }
+
+    return { updatedState: state };
+  }
+
+  static undoCopy(state, layerID, itemID) {
+    let item = state.getIn(['scene', 'layers', layerID, 'items', itemID]);
+
+    if (item) {
+      state = Layer.undoCopyElement(state, layerID, 'items', itemID).updatedState;
+    }
+
+    return { updatedState: state };
+  }
+
+  static paste(state, layerID, itemID) {
+    let layerOfCopiedElements = state.getIn(['copyPasteInfos', 'layerOfCopiedElements']);
+    let copiedItem = state.getIn(['scene', 'layers', layerOfCopiedElements, 'items', itemID]);
+
+    let {
+      type : pastedItemType,
+      width : pastedItemWidth,
+      height : pastedItemHeight,
+      rotation : pastedItemRotation,
+      properties: pastedItemProperties
+    } = copiedItem;
+
+    let copiedItemCoords = { x: copiedItem.x, y: copiedItem.y };
+    let { x: pastedItemX, y: pastedItemY } = Layer.calculatePastedElementCoords(state, 'items', copiedItem.id, copiedItemCoords);
+
+    let { updatedState: stateI, item } = this.create(
+      state,
+      layerID,
+      pastedItemType,
+      pastedItemX,
+      pastedItemY,
+      pastedItemWidth,
+      pastedItemHeight,
+      pastedItemRotation
+    );
+
+    state = stateI;
+
+    state = this.updateProperties( state, layerID, item.id, pastedItemProperties).updatedState;
+
+    return { updatedState: state, item };
+  }
 }
 
 export { Item as default };

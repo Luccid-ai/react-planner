@@ -627,6 +627,80 @@ class Line {
     return { updatedState: state };
   }
 
+  static copy(state, layerID, lineID) {
+    let line = state.getIn(['scene', 'layers', layerID, 'lines', lineID]);
+
+    if (line) {
+      state = Layer.copyElement(state, layerID, 'lines', lineID).updatedState;
+    }
+
+    return { updatedState: state };
+  }
+
+  static undoCopy(state, layerID, lineID) {
+    let line = state.getIn(['scene', 'layers', layerID, 'lines', lineID]);
+
+    if (line) {
+      state = Layer.undoCopyElement(state, layerID, 'vertices', line.vertices.get(0)).updatedState;
+      state = Layer.undoCopyElement(state, layerID, 'vertices', line.vertices.get(1)).updatedState;
+      state = Layer.undoCopyElement(state, layerID, 'lines', lineID).updatedState;
+    }
+
+    return { updatedState: state };
+  }
+
+  static paste(state, layerID, lineID) {
+    let layerOfCopiedElements = state.getIn(['copyPasteInfos', 'layerOfCopiedElements']);
+    let copiedLine = state.getIn(['scene', 'layers', layerOfCopiedElements, 'lines', lineID]);
+
+    // paste line
+    let { updatedState: stateI, line } = this.pasteLine(state, layerID, copiedLine);
+    state = stateI;
+
+    // add holes if any
+    let { holes } = copiedLine;
+
+    if (holes.size > 0) {
+      holes.forEach(holeID => { state = Hole.pasteLineHole(state, layerID, line.id, holeID).updatedState; });
+    }
+
+    return { updatedState: state };
+  }
+
+  static pasteLine(state, layerID, copiedLine) {
+    let layerOfCopiedElements = state.getIn(['copyPasteInfos', 'layerOfCopiedElements']);
+
+    let {
+      type : pastedLineType,
+      properties: pastedLineProperties,
+      vertices : copiedLineVertices,
+    } = copiedLine;
+
+    let copiedLineV0 = state.getIn(['scene', 'layers', layerOfCopiedElements, 'vertices', copiedLineVertices.get(0)]);
+    let copiedLineV1 = state.getIn(['scene', 'layers', layerOfCopiedElements, 'vertices', copiedLineVertices.get(1)]);
+    let copiedLineV0Coords = { x: copiedLineV0.x, y: copiedLineV0.y };
+    let { x: pastedLineX0, y: pastedLineY0 } = Layer.calculatePastedElementCoords(state, 'lines', copiedLine.id, copiedLineV0Coords);
+
+    let v1V0DiffX = copiedLineV1.x - copiedLineV0.x;
+    let v1V0DiffY = copiedLineV1.y - copiedLineV0.y;
+    let pastedLineX1 = pastedLineX0 + v1V0DiffX;
+    let pastedLineY1 = pastedLineY0 + v1V0DiffY;
+
+    let { updatedState: stateI, line } = this.create(
+      state,
+      layerID,
+      pastedLineType,
+      pastedLineX0,
+      pastedLineY0,
+      pastedLineX1,
+      pastedLineY1,
+      pastedLineProperties
+    );
+
+    state = stateI;
+
+    return { updatedState: state, line };
+  }
 }
 
 export { Line as default };

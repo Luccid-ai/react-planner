@@ -295,6 +295,79 @@ class Project {
     return { updatedState: state };
   }
 
+  static setRightClickCoords(state, coords) {
+    state = state.setIn(['copyPasteInfos', 'rightClickCoords'], coords);
+
+    return { updatedState: state };
+  }
+
+  static copyElements(state) {
+    let selectedLayer = state.getIn(['scene', 'selectedLayer']);
+
+    // Clear previously copied elements
+    state = this.undoCopyElements(state).updatedState;
+
+    let {
+      lines: selectedLines,
+      holes: selectedHoles,
+      items: selectedItems
+    } = state.getIn(['scene', 'layers', selectedLayer, 'selected']);
+
+    state = Layer.setLayerOfCopiedElements(state, selectedLayer).updatedState;
+    state = Layer.setFirstCopiedElement(state).updatedState;
+
+    // holes not allowed in multiple copy
+    if ((selectedHoles.size > 0) && ((selectedLines.size > 0) || (selectedItems.size > 0)) ) {
+      alert("Holes (windows, doors, gates...) can't be part of a multiple copy");
+    }
+    // only one hole
+    else if ((selectedLines.size === 0) && (selectedItems.size === 0) && (selectedHoles.size === 1)) {
+      state = Hole.copy(state, selectedLayer, selectedHoles.get(0)).updatedState;
+    }
+    else {
+      selectedItems.forEach(itemID => { state = Item.copy(state, selectedLayer, itemID).updatedState; });
+      selectedLines.forEach(lineID => { state = Line.copy(state, selectedLayer, lineID).updatedState; });
+    }
+
+    return { updatedState: state };
+  }
+
+  static undoCopyElements(state) {
+    let layerOfCopiedElements = state.getIn(['copyPasteInfos', 'layerOfCopiedElements']);
+
+    let {
+      lines: copiedLines,
+      holes: copiedHoles,
+      items: copiedItems
+    } = state.getIn(['clipboardElements']);
+
+    copiedLines.forEach(lineID => { state = Line.undoCopy( state, layerOfCopiedElements, lineID ).updatedState; });
+    copiedHoles.forEach(holeID => { state = Hole.undoCopy( state, layerOfCopiedElements, holeID ).updatedState; });
+    copiedItems.forEach(itemID => { state = Item.undoCopy( state, layerOfCopiedElements, itemID ).updatedState; });
+
+    return { updatedState: state };
+  }
+
+  static pasteElements(state) {
+    let selectedLayer = state.getIn(['scene', 'selectedLayer']);
+
+    let {
+      lines: copiedLines,
+      holes: copiedHoles,
+      items: copiedItems
+    } = state.getIn(['clipboardElements']);
+
+    copiedItems.forEach(itemID => { state = Item.paste(state, selectedLayer, itemID).updatedState; });
+    copiedLines.forEach(lineID => { state = Line.paste( state, selectedLayer, lineID ).updatedState; });
+
+    if (copiedHoles.size > 0) {
+      state = Hole.pasteHole(state, selectedLayer, copiedHoles.get(0)).updatedState;
+    }
+
+    state = Layer.detectAndUpdateAreas(state, selectedLayer).updatedState;
+
+    return { updatedState: state };
+  }
 }
 
 export { Project as default };

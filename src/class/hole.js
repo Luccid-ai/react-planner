@@ -397,6 +397,93 @@ class Hole {
     return {updatedState: state};
   }
 
+  static copy(state, layerID, holeID) {
+    let hole = state.getIn(['scene', 'layers', layerID, 'holes', holeID]);
+
+    if (hole) {
+      state = Layer.copyElement(state, layerID, 'holes', holeID).updatedState;
+    }
+
+    return { updatedState: state };
+  }
+
+  static undoCopy(state, layerID, holeID) {
+    let hole = state.getIn(['scene', 'layers', layerID, 'holes', holeID]);
+
+    if (hole) {
+      state = Layer.undoCopyElement(state, layerID, 'holes', holeID).updatedState;
+    }
+
+    return { updatedState: state };
+  }
+
+  static pasteLineHole(state, layerID, lineID, holeID) {
+    let layerOfCopiedElements = state.getIn(['copyPasteInfos', 'layerOfCopiedElements']);
+    let copiedHole = state.getIn(['scene', 'layers', layerOfCopiedElements, 'holes', holeID]);
+
+    let {
+      type: pastedHoleType,
+      offset: pastedHoleOffset,
+      properties: pastedHoleProperties
+    } = copiedHole;
+
+    let { updatedState: stateI, hole } = this.create(
+      state,
+      layerID,
+      pastedHoleType,
+      lineID,
+      pastedHoleOffset,
+      pastedHoleProperties
+    );
+
+    state = stateI;
+
+    return { updatedState: state, hole };
+  }
+
+  static pasteHole(state, layerID, holeID) {
+    let selectedElementID = state.getIn(['copyPasteInfos', 'firstSelectedElement']);
+    let selectedElementPrototype = state.getIn(['copyPasteInfos', 'firstSelectedElementPrototype']);
+
+    if (!selectedElementID) {
+      alert("Select the wall to which you want to add the hole (window, door, gate...)");
+
+      return { updatedState: state };
+    }
+    else if (selectedElementID && selectedElementPrototype !== 'lines') {
+      alert("Holes (windows, doors, gates...) can only be added to walls.\nPlease select a wall.");
+
+      return { updatedState: state };
+    }
+    else {
+      let selectedLine = state.getIn(['scene', 'layers', layerID, 'lines', selectedElementID]);
+      let layerOfCopiedElements = state.getIn(['copyPasteInfos', 'layerOfCopiedElements']);
+      let copiedHole = state.getIn(['scene', 'layers', layerOfCopiedElements, 'holes', holeID]);
+      let selectedLineV0 = state.getIn(['scene', 'layers', layerOfCopiedElements, 'vertices', selectedLine.vertices.get(0)]);
+      let selectedLineV1 = state.getIn(['scene', 'layers', layerOfCopiedElements, 'vertices', selectedLine.vertices.get(1)]);
+      let clickCoords = state.getIn(['copyPasteInfos', 'rightClickCoords']);
+
+      let offset = (clickCoords.x - selectedLineV0.x) / (selectedLineV1.x - selectedLineV0.x);
+
+      let {
+        type: pastedHoleType,
+        properties: pastedHoleProperties
+      } = copiedHole;
+
+      let { updatedState: stateI, hole } = this.create(
+        state,
+        layerID,
+        pastedHoleType,
+        selectedLine.id,
+        offset,
+        pastedHoleProperties
+      );
+
+      state = stateI;
+
+      return { updatedState: state, hole };
+    }
+  }
 }
 
 export {Hole as default};

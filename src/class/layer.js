@@ -35,6 +35,8 @@ class Layer{
     state = state.setIn(['scene', 'layers', layerID, elementPrototype, elementID, 'selected'], true);
     state = state.updateIn(['scene', 'layers', layerID, 'selected', elementPrototype], elems => elems.push(elementID));
 
+    state = this.setFirstSelectedElement(state, elementPrototype, elementID).updatedState;
+
     return { updatedState: state };
   }
 
@@ -51,6 +53,8 @@ class Layer{
     if( holes ) holes.forEach( hole => { state = Hole.unselect( state, layerID, hole.id ).updatedState; });
     if( items ) items.forEach( item => { state = Item.unselect( state, layerID, item.id ).updatedState; });
     if( areas ) areas.forEach( area => { state = Area.unselect( state, layerID, area.id ).updatedState; });
+
+    state = this.unsetFirstSelectedElement(state).updatedState;
 
     return { updatedState: state };
   }
@@ -286,6 +290,82 @@ class Layer{
     return { updatedState: state };
   }
 
+  static setLayerOfCopiedElements(state, layerID) {
+    state = state.setIn(['copyPasteInfos', 'layerOfCopiedElements'], layerID);
+
+    return { updatedState: state };
+  }
+
+  static setFirstSelectedElement(state, elementPrototype, elementID) {
+    let firstSelectedElement = state.getIn(['copyPasteInfos', 'firstSelectedElement']);
+
+    if (firstSelectedElement === null) {
+      state = state.setIn(['copyPasteInfos', 'firstSelectedElement'], elementID);
+      state = state.setIn(['copyPasteInfos', 'firstSelectedElementPrototype'], elementPrototype);
+    }
+
+    return { updatedState: state };
+  }
+
+  static unsetFirstSelectedElement(state) {
+    state = state.setIn(['copyPasteInfos', 'firstSelectedElement'], null);
+    state = state.setIn(['copyPasteInfos', 'firstSelectedElementPrototype'], null);
+
+    return { updatedState: state };
+  }
+
+  static setFirstCopiedElement(state) {
+    let firstSelectedElement = state.getIn(['copyPasteInfos', 'firstSelectedElement']);
+    let firstSelectedElementPrototype = state.getIn(['copyPasteInfos', 'firstSelectedElementPrototype']);
+
+    state = state.setIn(['copyPasteInfos', 'firstCopiedElement'], firstSelectedElement);
+    state = state.setIn(['copyPasteInfos', 'firstCopiedElementPrototype'], firstSelectedElementPrototype);
+
+    return { updatedState: state };
+  }
+
+  static copyElement(state, layerID, elementPrototype, elementID) {
+    state = state.setIn(['scene', 'layers', layerID, elementPrototype, elementID, 'copied'], true);
+    state = state.updateIn(['clipboardElements', elementPrototype], elems => elems.push(elementID));
+
+    return { updatedState: state };
+  }
+
+  static undoCopyElement( state, layerID, elementPrototype, elementID ){
+    state = state.setIn(['scene', 'layers', layerID, elementPrototype, elementID, 'copied'], false);
+    state = state.updateIn(['clipboardElements', elementPrototype], elems => elems.filter( el => el.id === elementID ));
+
+    return { updatedState: state };
+  }
+
+  static calculatePastedElementCoords(state, copiedElementPrototype, copiedElementID, copiedElementCoords) {
+    let clickCoords = state.getIn(['copyPasteInfos', 'rightClickCoords']);
+    let layerOfCopiedElements = state.getIn(['copyPasteInfos', 'layerOfCopiedElements']);
+    let firstElementID = state.getIn(['copyPasteInfos', 'firstCopiedElement']);
+    let firstElementPrototype = state.getIn(['copyPasteInfos', 'firstCopiedElementPrototype']);
+    let firstElement = state.getIn(['scene', 'layers', layerOfCopiedElements, firstElementPrototype, firstElementID]);
+    let firstElementCoords = { x: firstElement.x, y: firstElement.y };
+
+    if (firstElementPrototype === 'lines') {
+      let firstLineV0 = state.getIn(['scene', 'layers', layerOfCopiedElements, 'vertices', firstElement.vertices.get(0)]);
+
+      firstElementCoords = { x: firstLineV0.x, y: firstLineV0.y };
+    }
+
+    let pastedElementCoords = {x: 0, y: 0};
+
+    if (copiedElementID === firstElementID) {
+      pastedElementCoords = clickCoords;
+    } else {
+      let copiedVsFirstDiffX = copiedElementCoords.x - firstElementCoords.x;
+      let copiedVsFirstDiffY = copiedElementCoords.y - firstElementCoords.y;
+
+      pastedElementCoords.x = clickCoords.x + copiedVsFirstDiffX;
+      pastedElementCoords.y = clickCoords.y + copiedVsFirstDiffY;
+    }
+
+    return pastedElementCoords;
+  }
 }
 
 export { Layer as default };
